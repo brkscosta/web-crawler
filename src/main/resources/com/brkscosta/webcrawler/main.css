@@ -1,0 +1,14 @@
+.mainContainer {
+    -fx-background-color: rgba(44, 44, 44, 0.93);
+}
+
+.startSearchControls {
+    -fx-spacing: 10;
+}
+
+.statisticsZone {
+}
+
+.menuBar > MenuItem {
+    -fx-color-label-visible: #000000;
+}

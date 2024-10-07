@@ -1,32 +1,42 @@
 package com.brkscosta.webcrawler.app.ui.main;
 
-import com.brkscosta.webcrawler.app.utils.Logger;
+import com.brkscosta.webcrawler.data.utils.Logger;
 import com.brkscosta.webcrawler.data.entities.Link;
 import com.brkscosta.webcrawler.data.entities.WebPage;
+import com.brkscosta.webcrawler.webCrawler.BuildConfig;
 import com.brunomnsilva.smartgraph.containers.ContentZoomScrollPane;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
 import com.google.inject.Inject;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 
 import java.util.function.UnaryOperator;
 
 public class MainView extends AnchorPane {
 
     @FXML
+    private Label totalPagesLbl = new Label();
+
+    @FXML
+    private Label totalLinksLbl = new Label();
+
+    @FXML
+    private Label numLinksNotFoundLbl = new Label();
+
+    @FXML
+    private Label totalHTTPSProtocolsLbl = new Label();
+
+    @FXML
     private Label rootPageLbl = new Label();
-
-    @FXML
-    private Label numOfWebPagesLbl = new Label();
-
-    @FXML
-    private Label num200HttpCodeLbl = new Label();
-
-    @FXML
-    private Label numOfLinksLbl = new Label();
 
     @FXML
     private CheckMenuItem circularStrategyMenuCheck;
@@ -50,9 +60,6 @@ public class MainView extends AnchorPane {
     private CheckBox automaticLayoutCbx = new CheckBox();
 
     @FXML
-    private Slider slider;
-
-    @FXML
     private BorderPane graphBorderPane = new BorderPane();
 
     private final SmartGraphPanel<WebPage, Link> graphView;
@@ -70,7 +77,7 @@ public class MainView extends AnchorPane {
         this.viewModel = viewModel;
         this.logger = logger;
         this.graphView = new SmartGraphPanel<>(viewModel.getGraph(), viewModel.getPlacementStrategy());
-        this.zoomScrollPane = new ContentZoomScrollPane(graphView);
+        this.zoomScrollPane = new ContentZoomScrollPane(graphView, BuildConfig.MAX_SCALE_FACTOR, BuildConfig.DELTA_SCALE_FACTOR);
     }
 
     @FXML
@@ -81,12 +88,10 @@ public class MainView extends AnchorPane {
     }
 
     private void setupUI() {
-        this.searchCriteriaDpw.getSelectionModel().select(0);
         this.checkStrategyMenuCheck();
         this.graphBorderPane.setCenter(this.zoomScrollPane);
-        this.slider = new Slider(this.zoomScrollPane.getMinScaleFactor(),
-                this.zoomScrollPane.getMaxScaleFactor(), this.zoomScrollPane.getMinScaleFactor());
-        this.slider.valueProperty().bindBidirectional(this.zoomScrollPane.scaleFactorProperty());
+        this.graphBorderPane.setRight(this.createSidebar(this.zoomScrollPane));
+
         this.automaticLayoutCbx.selectedProperty().bindBidirectional(this.graphView.automaticLayoutProperty());
         this.automaticLayoutMenuItem.selectedProperty().bindBidirectional(this.graphView.automaticLayoutProperty());
     }
@@ -100,8 +105,12 @@ public class MainView extends AnchorPane {
             this.logger.writeToLog("Number of pages is empty");
             return;
         }
+
         int numberOfPages = Integer.parseInt(this.numberOfPagesTextField.getText());
-        this.viewModel.startSearch(this.urlTextField.getText().trim(), searchType, numberOfPages);
+        String url = this.urlTextField.getText().trim();
+
+        this.viewModel.startSearch(url, searchType, numberOfPages);
+        this.rootPageLbl.setText(url);
     }
 
     public SmartGraphPanel<WebPage, Link> getGraphView() {
@@ -158,6 +167,7 @@ public class MainView extends AnchorPane {
     }
 
     private void checkStrategyMenuCheck() {
+        this.searchCriteriaDpw.getSelectionModel().select(0);
         if (this.viewModel.getSelectedPlacementStrategy() == StrategyPlacement.RANDOM) {
             this.randomStrategyMenuCheck.selectedProperty().set(true);
         } else {
@@ -205,11 +215,7 @@ public class MainView extends AnchorPane {
             this.searchCriteriaDpw.getItems().add(name);
         });
 
-        this.viewModel.onSearchComplete().subscribe((param) -> {
-            this.graphView.updateAndWait();
-            this.graphView.getStylableVertex(this.viewModel.getRootVertex()).addStyleClass("myVertex");
-            this.setAutomaticLayout();
-        });
+        this.viewModel.onSearchComplete().subscribe(this::accept);
 
         this.searchCriteriaDpw.setOnAction(event -> {
             this.viewModel.clearGraph();
@@ -219,6 +225,47 @@ public class MainView extends AnchorPane {
             WebPage webPage = event.getUnderlyingVertex().element();
             this.logger.writeToLog("Clicked on page: " + webPage.getTitle());
             this.viewModel.startSearch(webPage, SearchType.INTERACTIVE);
+        });
+    }
+
+    private void updateUi(MainViewUiState uiState) {
+        this.totalPagesLbl.setText(uiState.numOfWebPages().toString());
+        this.totalLinksLbl.setText(uiState.numOfLinks().toString());
+        this.numLinksNotFoundLbl.setText(uiState.numLinksNotFound().toString());
+        this.totalHTTPSProtocolsLbl.setText(uiState.numHTTPSLinks().toString());
+    }
+
+    private Node createSidebar(ContentZoomScrollPane zoomPane) {
+        VBox paneSlider = new VBox(10);
+        paneSlider.setAlignment(Pos.CENTER);
+        paneSlider.setPadding(new Insets(10));
+        paneSlider.setSpacing(10);
+
+        Slider slider = new Slider(zoomPane.getMinScaleFactor(),
+                zoomPane.getMaxScaleFactor(), BuildConfig.MIN_SCALE_FACTOR);
+
+        slider.setOrientation(Orientation.VERTICAL);
+        slider.setShowTickLabels(true);
+        slider.setMajorTickUnit(zoomPane.getDeltaScaleFactor());
+        slider.setMinorTickCount(BuildConfig.MIN_SCALE_FACTOR.intValue());
+        slider.setBlockIncrement(0.125f);
+        slider.setSnapToTicks(true);
+        slider.setBackground(new Background(new BackgroundFill(Color.DARKGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+
+        slider.valueProperty().bind(zoomPane.scaleFactorProperty());
+
+        paneSlider.getChildren().addAll(slider, new Text("Zoom"));
+
+        return paneSlider;
+    }
+
+    private void accept(MainViewUiState uiState) {
+        this.graphView.updateAndWait();
+        this.graphView.getStylableVertex(this.viewModel.getRootVertex()).addStyleClass("myVertex");
+        this.setAutomaticLayout();
+
+        Platform.runLater(() -> {
+            this.updateUi(uiState);
         });
     }
 }

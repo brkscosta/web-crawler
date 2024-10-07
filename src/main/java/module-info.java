@@ -9,10 +9,10 @@ module com.brkscosta.webcrawler.app {
 
     opens com.brkscosta.webcrawler.app.ui.main to javafx.fxml;
 
+    exports com.brkscosta.webcrawler;
     exports com.brkscosta.webcrawler.app.ui.main;
     exports com.brkscosta.webcrawler.app.di;
-    exports com.brkscosta.webcrawler.app.utils;
     exports com.brkscosta.webcrawler.data.entities;
     exports com.brkscosta.webcrawler.data.repositories;
-    exports com.brkscosta.webcrawler;
+    exports com.brkscosta.webcrawler.data.utils;
 }

@@ -1,10 +1,10 @@
 package com.brkscosta.webcrawler.data.repositories;
 
-import com.brkscosta.webcrawler.app.utils.Logger;
 import com.brkscosta.webcrawler.data.entities.Link;
 import com.brkscosta.webcrawler.data.entities.WebPage;
 import com.brkscosta.webcrawler.data.errors.LinkException;
 import com.brkscosta.webcrawler.data.errors.LinkTitleException;
+import com.brkscosta.webcrawler.data.utils.Logger;
 import com.brkscosta.webcrawler.webCrawler.BuildConfig;
 import com.google.inject.Inject;
 import org.jsoup.Jsoup;
@@ -15,7 +15,10 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,7 +26,8 @@ import java.util.regex.Pattern;
 public class WebPageRepository {
 
     private final Logger logger;
-    private long httpsProtocolsCount = 0;
+    private int httpsProtocolsCount = 0;
+    private int http404Count = 0;
 
     @Inject
     public WebPageRepository(Logger logger) {
@@ -35,8 +39,25 @@ public class WebPageRepository {
      *
      * @return - A number
      */
-    public long getHttpsProtocolsCount() {
-        return httpsProtocolsCount;
+    public int getHttpsProtocolsCount() {
+        return this.httpsProtocolsCount;
+    }
+
+    /**
+     * Gets the number of http 404 errors.
+     *
+     * @return - A number
+     */
+    public int getHttp404Count() {
+        return this.http404Count;
+    }
+
+    /**
+     * Resets the counters.
+     */
+    public void resetCounters() {
+        this.httpsProtocolsCount = 0;
+        this.http404Count = 0;
     }
 
     /**
@@ -45,7 +66,7 @@ public class WebPageRepository {
      * @param webPage- The WebPage object
      * @return - Counter of pages
      */
-    public int getNumberOfLinksNotFound(WebPage webPage) {
+    public int searchLinksNotFoundByPage(WebPage webPage) {
         return webPage.getLinksNotFound().size();
     }
 
@@ -179,6 +200,7 @@ public class WebPageRepository {
     }
 
     private void countHttpsProtocols(Set<Link> links) {
-        this.httpsProtocolsCount = links.stream().filter(link -> link.getUrl().getProtocol().equals("https")).count();
+        this.httpsProtocolsCount += (int) links.stream().filter(link -> link.getUrl().getProtocol().equals("https")).count();
+        this.http404Count += (int) links.stream().filter(link -> link.getStatusCode() == 404).count();
     }
 }

@@ -164,6 +164,21 @@
                             <type>Integer</type>
                             <value>800</value>
                         </field>
+                        <field>
+                            <name>MIN_SCALE_FACTOR</name>
+                            <type>Double</type>
+                            <value>1.0</value>
+                        </field>
+                        <field>
+                            <name>MAX_SCALE_FACTOR</name>
+                            <type>Double</type>
+                            <value>1.5</value>
+                        </field>
+                        <field>
+                            <name>DELTA_SCALE_FACTOR</name>
+                            <type>Float</type>
+                            <value>0.25f</value>
+                        </field>
                     </fields>
                     <includes>
                         <include>java.lang.StringBuilder</include>

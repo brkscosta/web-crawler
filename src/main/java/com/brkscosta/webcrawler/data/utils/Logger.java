@@ -1,4 +1,4 @@
-package com.brkscosta.webcrawler.app.utils;
+package com.brkscosta.webcrawler.data.utils;
 
 import com.google.inject.Singleton;
 
@@ -11,14 +11,14 @@ import java.util.Date;
 @Singleton
 public final class Logger {
 
-    private static final String DEFAULT_LOGGERFILE = "logger.txt";
+    private static final String DEFAULT_LOGFILE = "logger.txt";
     private PrintStream printStream;
 
     /**
      * Constructs a new instance of Logger.
      */
     public Logger() {
-        this(DEFAULT_LOGGERFILE);
+        this(DEFAULT_LOGFILE);
     }
 
     /**

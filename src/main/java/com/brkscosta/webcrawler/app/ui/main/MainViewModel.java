@@ -1,12 +1,13 @@
 package com.brkscosta.webcrawler.app.ui.main;
 
-import com.brkscosta.webcrawler.app.utils.Logger;
+import com.brkscosta.webcrawler.data.utils.Logger;
 import com.brkscosta.webcrawler.data.entities.Link;
 import com.brkscosta.webcrawler.data.entities.WebPage;
+import com.brkscosta.webcrawler.data.errors.LinkException;
+import com.brkscosta.webcrawler.data.errors.LinkTitleException;
 import com.brkscosta.webcrawler.data.repositories.CareTakerRepository;
 import com.brkscosta.webcrawler.data.repositories.CrawlerRepository;
 import com.brkscosta.webcrawler.data.repositories.WebPageRepository;
-import com.brkscosta.webcrawler.data.utils.UrlUtils;
 import com.brkscosta.webcrawler.data.utils.WePageUtils;
 import com.brkscosta.webcrawler.domain.BreadthSearch;
 import com.brkscosta.webcrawler.domain.DepthSearch;
@@ -23,6 +24,7 @@ import io.reactivex.rxjava3.subjects.Subject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 public class MainViewModel {
     private static final String ROOT_PAGE_NAME = "Home";
@@ -31,7 +33,7 @@ public class MainViewModel {
     private final CrawlerRepository crawlerRepository;
     private Map<SearchType, String> stopCriteriaStringHashMap = new HashMap<>();
     private final CareTakerRepository careTakerRepository;
-    private final Subject<Boolean> searchComplete$ = PublishSubject.create();
+    private final Subject<MainViewUiState> searchComplete$ = PublishSubject.create();
 
     @Inject
     public MainViewModel(Logger logger, CrawlerRepository crawlerRepository, WebPageRepository webPageRepository,
@@ -42,19 +44,6 @@ public class MainViewModel {
         this.careTakerRepository = careTakerRepository;
 
         initStopCriteria();
-    }
-
-    /**
-     * Starts the search process for the given URL with the specified search type and number of pages.
-     *
-     * @param url           - The URL to start the search from.
-     * @param searchType    - The type of search to perform.
-     * @param numberOfPages - The number of pages to search.
-     */
-    public void startSearch(String url, SearchType searchType, int numberOfPages) {
-        if (UrlUtils.isUrlValid(url)) {
-            this.startSearch(WePageUtils.createWebPage(url, ROOT_PAGE_NAME), searchType, numberOfPages);
-        }
     }
 
     /**
@@ -77,28 +66,58 @@ public class MainViewModel {
     public void startSearch(WebPage webPage, SearchType searchType, int numOfPages) {
 
         if (webPage == null) {
-            throw new IllegalArgumentException("WebPage cannot be null");
+            this.logger.writeToLog("Invalid WebPage");
+            return;
         }
 
         SearchCriteria searchCriteria = this.getSearchCriteria(searchType, numOfPages);
 
         if (searchCriteria instanceof InteractiveSearch) {
-            searchCriteria.search(webPage).thenAccept(aVoid -> {
+            searchCriteria.search(webPage).whenComplete((aVoid, throwable) -> {
                 this.careTakerRepository.saveCurrentState();
-                this.searchComplete$.onNext(true);
+                this.searchComplete$.onNext(new MainViewUiState(
+                        this.crawlerRepository.getGraph().numVertices(),
+                        this.crawlerRepository.getGraph().numEdges(),
+                        this.webPageRepository.getHttp404Count(),
+                        this.webPageRepository.getHttpsProtocolsCount()
+                ));
             });
             return;
         }
 
+        this.webPageRepository.resetCounters();
         searchCriteria.search(WePageUtils.createWebPage(webPage.getUrl().toString(), ROOT_PAGE_NAME)).whenComplete((aVoid, throwable) -> {
             if (throwable != null) {
-                this.logger.writeToLog(throwable.getMessage());
-                this.searchComplete$.onError(throwable);
+                if (throwable instanceof LinkTitleException) {
+                    this.logger.writeToLog(throwable.getMessage());
+                } else if (throwable instanceof LinkException) {
+                    this.logger.writeToLog(throwable.getMessage());
+                } else if (throwable instanceof TimeoutException) {
+                    this.logger.writeToLog(throwable.getMessage());
+                }
+                this.searchComplete$.onNext(new MainViewUiState());
                 return;
             }
+
             this.careTakerRepository.saveCurrentState();
-            this.searchComplete$.onNext(true);
+            this.searchComplete$.onNext(new MainViewUiState(
+                    this.crawlerRepository.getGraph().numVertices(),
+                    this.crawlerRepository.getGraph().numEdges(),
+                    this.webPageRepository.getHttp404Count(),
+                    this.webPageRepository.getHttpsProtocolsCount()
+            ));
         });
+    }
+
+    /**
+     * Starts the search process for the given URL with the specified search type, number of pages, and time constraints.
+     *
+     * @param url           - The URL to start the search from.
+     * @param searchType    - The type of search to perform.
+     * @param numberOfPages - The number of pages to search.
+     */
+    public void startSearch(String url, SearchType searchType, int numberOfPages) {
+        this.startSearch(WePageUtils.createWebPage(url, ROOT_PAGE_NAME), searchType, numberOfPages);
     }
 
     /**
@@ -115,7 +134,7 @@ public class MainViewModel {
      *
      * @return - An observable with the search complete.
      */
-    public Observable<Boolean> onSearchComplete() {
+    public Observable<MainViewUiState> onSearchComplete() {
         return this.searchComplete$;
     }
 

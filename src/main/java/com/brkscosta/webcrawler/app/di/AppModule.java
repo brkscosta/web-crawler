@@ -2,7 +2,7 @@ package com.brkscosta.webcrawler.app.di;
 
 import com.brkscosta.webcrawler.app.ui.main.MainView;
 import com.brkscosta.webcrawler.app.ui.main.MainViewModel;
-import com.brkscosta.webcrawler.app.utils.Logger;
+import com.brkscosta.webcrawler.data.utils.Logger;
 import com.brkscosta.webcrawler.data.repositories.CareTakerRepository;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;

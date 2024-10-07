@@ -4,25 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b155e495-bb05-496a-98db-6f6ca8261788" name="Changes" comment="feat: initial commit">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/data/errors/LinkException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/data/errors/LinkTitleException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logger.txt" beforeDir="false" afterPath="$PROJECT_DIR$/logger.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartgraph.css" beforeDir="false" afterPath="$PROJECT_DIR$/smartgraph.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/WebCrawler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/WebCrawler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/app/ui/main/MainView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/app/ui/main/MainView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/app/ui/main/MainViewModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/app/ui/main/MainViewModel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/app/utils/LoggerException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/data/repositories/CareTakerRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/data/repositories/CareTakerRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/data/repositories/WebPageRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/data/repositories/WebPageRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/domain/BreadthSearch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/domain/BreadthSearch.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/domain/DepthSearch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/domain/DepthSearch.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/domain/InteractiveSearch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/brkscosta/webcrawler/domain/InteractiveSearch.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
-    </list>
+    <list default="true" id="b155e495-bb05-496a-98db-6f6ca8261788" name="Changes" comment="feat: refactor search algorithms" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -35,8 +17,9 @@
         <option value="FxmlFile" />
         <option value="Enum" />
         <option value="Interface" />
-        <option value="Exception" />
         <option value="Class" />
+        <option value="Exception" />
+        <option value="Record" />
       </list>
     </option>
   </component>
@@ -74,8 +57,9 @@
   "keyToString": {
     "Application.ExampleMain.executor": "Run",
     "Application.Main.executor": "Run",
-    "Application.WebCrawler.executor": "Run",
+    "Application.WebCrawler.executor": "Debug",
     "Maven.web-crawler [build-config:generate].executor": "Run",
+    "Maven.web-crawler [clean,install].executor": "Run",
     "Maven.web-crawler [clean].executor": "Run",
     "Maven.web-crawler [compile].executor": "Run",
     "Maven.web-crawler [dev.grmek.maven:build-config-plugin:1.0.0:generate].executor": "Run",
@@ -97,7 +81,7 @@
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.37596154",
-    "settings.editor.selected.configurable": "preferences.keymap",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -176,7 +160,10 @@
       <workItem from="1728080614564" duration="8527000" />
       <workItem from="1728089478555" duration="256000" />
       <workItem from="1728089740830" duration="1654000" />
-      <workItem from="1728091400531" duration="2877000" />
+      <workItem from="1728091400531" duration="3590000" />
+      <workItem from="1728153924088" duration="26494000" />
+      <workItem from="1728290100966" duration="1027000" />
+      <workItem from="1728291131732" duration="652000" />
     </task>
     <task id="LOCAL-00001" summary="feat: initial commit">
       <option name="closed" value="true" />
@@ -194,7 +181,55 @@
       <option name="project" value="LOCAL" />
       <updated>1728080409422</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="feat: initial commit">
+      <option name="closed" value="true" />
+      <created>1728094648642</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1728094648642</updated>
+    </task>
+    <task id="LOCAL-00004" summary="feat: Refactor search algorithm.">
+      <option name="closed" value="true" />
+      <created>1728180152226</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1728180152226</updated>
+    </task>
+    <task id="LOCAL-00005" summary="feat: refactor search algorithm">
+      <option name="closed" value="true" />
+      <created>1728291115897</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1728291115897</updated>
+    </task>
+    <task id="LOCAL-00006" summary="feat: refactor search algorithm">
+      <option name="closed" value="true" />
+      <created>1728291152418</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1728291152418</updated>
+    </task>
+    <task id="LOCAL-00007" summary="feat: refactor search algorithm">
+      <option name="closed" value="true" />
+      <created>1728291296126</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1728291296126</updated>
+    </task>
+    <task id="LOCAL-00008" summary="feat: refactor search algorithms">
+      <option name="closed" value="true" />
+      <created>1728291776998</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1728291776998</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -213,7 +248,11 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat: initial commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: initial commit" />
+    <MESSAGE value="feat: refactor search algorithm." />
+    <MESSAGE value="feat: refactor search algorithm." />
+    <MESSAGE value="feat: refactor search algorithm" />
+    <MESSAGE value="feat: refactor search algorithms" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: refactor search algorithms" />
   </component>
   <component name="XDebuggerManager">
     <pin-to-top-manager>

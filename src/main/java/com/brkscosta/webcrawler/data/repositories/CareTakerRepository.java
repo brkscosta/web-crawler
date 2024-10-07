@@ -1,8 +1,7 @@
 package com.brkscosta.webcrawler.data.repositories;
 
-import com.brkscosta.webcrawler.app.utils.Logger;
+import com.brkscosta.webcrawler.data.utils.Logger;
 import com.google.inject.Inject;
-import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import io.reactivex.rxjava3.subjects.Subject;
 

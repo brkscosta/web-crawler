@@ -1,6 +1,6 @@
 package com.brkscosta.webcrawler.domain;
 
-import com.brkscosta.webcrawler.app.utils.Logger;
+import com.brkscosta.webcrawler.data.utils.Logger;
 import com.brkscosta.webcrawler.data.entities.Link;
 import com.brkscosta.webcrawler.data.entities.WebPage;
 import com.brkscosta.webcrawler.data.repositories.CrawlerRepository;
@@ -8,14 +8,11 @@ import com.brkscosta.webcrawler.data.repositories.WebPageRepository;
 import com.brkscosta.webcrawler.data.utils.WePageUtils;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class InteractiveSearch implements SearchCriteria {
     private final Logger logger;
     private final WebPageRepository webPageRepository;
     private final CrawlerRepository crawlerRepository;
-    private static final int TIMEOUT = 10;
 
     public InteractiveSearch(Logger logger, WebPageRepository webPageRepository,
                              CrawlerRepository crawlerRepository) {
@@ -53,14 +50,6 @@ public class InteractiveSearch implements SearchCriteria {
                     this.logger.writeToLog("Inserted new page and linked: " + rootPage.getUrl() + " -> " + newPage.getUrl());
                 }
             }
-        }).orTimeout(TIMEOUT, TimeUnit.SECONDS).exceptionally(ex -> {
-            if (ex instanceof TimeoutException) {
-                this.logger.writeToLog("Search timed out");
-                return null;
-            }
-
-            this.logger.writeToLog(ex.getMessage());
-            return null;
         }).thenAccept((param) -> {
             this.logger.writeToLog("Search completed with " + param.size() + " new pages.");
             this.logger.writeToLog("Search Finished");
